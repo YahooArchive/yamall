@@ -1,0 +1,9 @@
+yamall
+Copyright 2016 Yahoo Inc.
+
+This product includes software developed at Yahoo Inc.
+
+Fast parsing of numbers is provided by parts of the jnumbers library,
+which is released under the Simplified BSD license, written by Laurent Bourges.
+The original software is available from
+https://github.com/bourgesl/jnumbers

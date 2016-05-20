@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.yahoo.labs.yamall</groupId>
+	<artifactId>yamall-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0</version>
+	<name>yamall-parent</name>
+	<description>Yet Another MAchine Learning Library - Parent</description>
+		
+	<modules>
+		<module>api</module>
+		<module>local</module>
+		<module>hadoop</module>
+	</modules>
+	
+	<build>
+	</build>
+
+</project>
