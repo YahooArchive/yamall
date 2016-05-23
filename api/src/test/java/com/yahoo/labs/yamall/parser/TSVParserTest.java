@@ -28,6 +28,7 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getLabel() == 1.0);
         Assert.assertTrue(sample.getVector().containsValue(76.0));
         Assert.assertTrue(f.contains("description personality_jogger"));
@@ -43,6 +44,7 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getVector().containsValue(80.0));
         Assert.assertTrue(f.contains("feature height_0"));
@@ -56,6 +58,7 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getVector().containsValue(80.0));
         Assert.assertTrue(f.contains("feature height_0"));
@@ -69,6 +72,7 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getVector().containsValue(80.0));
         Assert.assertTrue(f.contains("feature height_2"));
@@ -82,9 +86,10 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getVector().size() == 2);
 
-        spec = "name,0,ignore\nmale,1,label\nweight,1,a\nstrong,0,b\nnum,3,c,177,180\npersonality,1,d";
+        spec = "name,0,ignore\nmale,1,label\nweight_pounds,1,a\nstrong,0,b\nnum,3,c,177,180\npersonality,1,d";
         tsvParser = new TSVParser(18, "abc", true, spec);
         str = "janes\t-1\t100\ttrue\t150\t2";
         sample = tsvParser.parse(str);
@@ -95,8 +100,39 @@ public class TSVParserTest {
                     + entry.getDoubleValue());
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
+        System.out.println();
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getVector().containsValue(2.0));
         Assert.assertTrue(sample.getVector().size() == 2);
+
+        spec = "name,0,ignore\nmale,1,label\nimportance,1,weight";
+        tsvParser = new TSVParser(18, "abc", true, spec);
+        str = "janes\t-1\t3";
+        sample = tsvParser.parse(str);
+        System.out.println(str);
+        f = new ArrayList<String>();
+        for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
+            System.out.println(entry.getIntKey() + "=" + tsvParser.getInvertHashMap().get(entry.getIntKey()) + ","
+                    + entry.getDoubleValue());
+            f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
+        }
+        System.out.println();
+        Assert.assertTrue(sample.getLabel() == -1.0);
+        Assert.assertTrue(sample.getWeight() == 3);
+
+        spec = "name,0,ignore\nmale,1,label\nimportance,1,weight";
+        tsvParser = new TSVParser(18, "abc", true, spec);
+        str = "janes\t-1\t3";
+        sample = tsvParser.parse(str);
+        System.out.println(str);
+        f = new ArrayList<String>();
+        for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
+            System.out.println(entry.getIntKey() + "=" + tsvParser.getInvertHashMap().get(entry.getIntKey()) + ","
+                    + entry.getDoubleValue());
+            f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
+        }
+        System.out.println();
+        Assert.assertTrue(sample.getLabel() == -1.0);
+        Assert.assertTrue(sample.getWeight() == 3);
     }
 }
