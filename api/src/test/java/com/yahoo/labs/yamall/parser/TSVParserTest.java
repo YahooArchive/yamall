@@ -121,7 +121,7 @@ public class TSVParserTest {
         Assert.assertTrue(sample.getWeight() == 3);
 
         spec = "name,0,ignore\nmale,1,label\nimportance,1,weight";
-        tsvParser = new TSVParser(18, "abcl", true, spec);
+        tsvParser = new TSVParser(18, "abclw", true, spec);
         str = "janes\t-1\t3";
         sample = tsvParser.parse(str);
         System.out.println(str);
