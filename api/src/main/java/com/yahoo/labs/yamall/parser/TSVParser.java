@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
  * Two consecutive tabs are interpreted as a missing value.
  *
  * @author Francesco Orabona, (francesco@yahoo-inc.com)
- * @version 1.0
+ * @version 1.1
  */
 public class TSVParser implements InstanceParser {
 
@@ -100,7 +100,7 @@ public class TSVParser implements InstanceParser {
             String nt = stringTokenizer2.nextToken();
             if (nt == null)
                 nt = new String("");
-            else if (ignoreNamespaceHashMap != null)
+            else if (!nt.equals("label") && !nt.equals("weight") && ignoreNamespaceHashMap != null)
                 if (ignoreNamespaceHashMap.get(nt.charAt(0)))
                     nt = "ignore";
             namespace.add(nt);
@@ -125,7 +125,7 @@ public class TSVParser implements InstanceParser {
         int pos = 0;
         String token;
         while ((token = stringTokenizer.nextToken()) != null) {
-            if (!token.equals("")) {
+            if (!token.equals("") && !namespace.get(pos).equals("ignore")) {
                 if (namespace.get(pos).equals("label")) {
                     final double val = NumberParser.getDoubleNoSpecial(token);
                     instance.setLabel(val);
@@ -134,7 +134,7 @@ public class TSVParser implements InstanceParser {
                     final double val = NumberParser.getDoubleNoSpecial(token);
                     instance.setWeight(val);
                 }
-                else if (!namespace.get(pos).equals("ignore")) {
+                else {
                     switch (type.getInt(pos)) {
                         // categorical
                         case 0: {
