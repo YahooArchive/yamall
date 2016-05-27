@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
  * Two consecutive tabs are interpreted as a missing value.
  *
  * @author Francesco Orabona, (francesco@yahoo-inc.com)
- * @version 1.0
+ * @version 1.1
  */
 public class TSVParser implements InstanceParser {
 
@@ -48,7 +48,9 @@ public class TSVParser implements InstanceParser {
      * Specify the bins by adding a comma separated list of increasing real numbers. e.g., for the height variable, suppose we specify bins "177,180". This
      * makes height below 177 in bin -1, height in [177,180) in bin 0, height 180 and above in bin 1.
      * <p>
-     * Reserved field_names: "label", for the label; "ignore", to ignore the feature.
+     * Reserved field_names: "label" for the label; "ignore" to ignore the feature, "weight" for the weight of the example.
+     * <p>
+     * Note that reserved field names cannot be ignored through the ignoreNamespaces parameter.
      * <p>
      * The labels are expected to be -1 and 1.
      * 
@@ -98,7 +100,7 @@ public class TSVParser implements InstanceParser {
             String nt = stringTokenizer2.nextToken();
             if (nt == null)
                 nt = new String("");
-            else if (ignoreNamespaceHashMap != null)
+            else if (!nt.equals("label") && !nt.equals("weight") && ignoreNamespaceHashMap != null)
                 if (ignoreNamespaceHashMap.get(nt.charAt(0)))
                     nt = "ignore";
             namespace.add(nt);
@@ -127,6 +129,10 @@ public class TSVParser implements InstanceParser {
                 if (namespace.get(pos).equals("label")) {
                     final double val = NumberParser.getDoubleNoSpecial(token);
                     instance.setLabel(val);
+                }
+                else if (namespace.get(pos).equals("weight")) {
+                    final double val = NumberParser.getDoubleNoSpecial(token);
+                    instance.setWeight(val);
                 }
                 else {
                     switch (type.getInt(pos)) {
