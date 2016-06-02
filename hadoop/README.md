@@ -1,11 +1,5 @@
 # yamall - Hadoop mode
 
-## Yinst
-
-It will install yamall-hadoop-jar-with-dependencies.jar in /lib/jars.
-See below on how to use it.
-
-
 # Options
 yamall.ignore arg - ignores the namespaces whose letter begins with the letters in arg
 
