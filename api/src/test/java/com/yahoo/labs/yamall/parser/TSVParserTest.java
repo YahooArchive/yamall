@@ -120,9 +120,9 @@ public class TSVParserTest {
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getWeight() == 3);
 
-        spec = "name,0,ignore\nmale,1,label\nimportance,1,weight";
+        spec = "name,0,ignore\nmale,1,label\nimportance,1,weight\ntag,1,tag";
         tsvParser = new TSVParser(18, "abclw", true, spec);
-        str = "janes\t-1\t3";
+        str = "janes\t-1\t3\tiamthetag";
         sample = tsvParser.parse(str);
         System.out.println(str);
         f = new ArrayList<String>();
@@ -132,8 +132,9 @@ public class TSVParserTest {
             f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
         }
         System.out.println();
-        // label and weight cannot be ignored
+        // label, tag, and weight cannot be ignored
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getWeight() == 3);
+        Assert.assertTrue(sample.getTag().equals("iamthetag"));
     }
 }
