@@ -48,7 +48,8 @@ public class TSVParser implements InstanceParser {
      * Specify the bins by adding a comma separated list of increasing real numbers. e.g., for the height variable, suppose we specify bins "177,180". This
      * makes height below 177 in bin -1, height in [177,180) in bin 0, height 180 and above in bin 1.
      * <p>
-     * Reserved field_names: "label" for the label; "ignore" to ignore the feature, "weight" for the weight of the example.
+     * Reserved field_names: "label" for the label; "ignore" to ignore the feature, "weight" for the weight of the example, "tag" for the tag of the example.
+     * The field_name and field_type are ignored for labels, weights, and tags.
      * <p>
      * Note that reserved field names cannot be ignored through the ignoreNamespaces parameter.
      * <p>
@@ -100,7 +101,7 @@ public class TSVParser implements InstanceParser {
             String nt = stringTokenizer2.nextToken();
             if (nt == null)
                 nt = new String("");
-            else if (!nt.equals("label") && !nt.equals("weight") && ignoreNamespaceHashMap != null)
+            else if (!nt.equals("label") && !nt.equals("weight") && !nt.equals("tag") && ignoreNamespaceHashMap != null)
                 if (ignoreNamespaceHashMap.get(nt.charAt(0)))
                     nt = "ignore";
             namespace.add(nt);
@@ -133,6 +134,9 @@ public class TSVParser implements InstanceParser {
                 else if (namespace.get(pos).equals("weight")) {
                     final double val = NumberParser.getDoubleNoSpecial(token);
                     instance.setWeight(val);
+                }
+                else if (namespace.get(pos).equals("tag")) {
+                    instance.setTag(token);
                 }
                 else {
                     switch (type.getInt(pos)) {
