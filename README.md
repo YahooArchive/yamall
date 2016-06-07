@@ -42,6 +42,11 @@ See the directory 'local'.
 See the directory 'hadoop'.
 
 
+## Examples on how to use the yamall APIs
+
+See the directory 'examples'.
+
+
 ## License
 
 The use and distribution terms for this software are covered by the Apache 2.0 license. See LICENSE file for terms.
