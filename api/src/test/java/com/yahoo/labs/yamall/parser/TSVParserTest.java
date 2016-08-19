@@ -63,7 +63,7 @@ public class TSVParserTest {
         Assert.assertTrue(sample.getVector().containsValue(80.0));
         Assert.assertTrue(f.contains("feature height_0"));
 
-        str = "janes\t-1\t80.0\tfalse\ttrue\tavid jogger\t190";
+        str = "janes\t-1\t80.0\tfalse\ttrue\tavid jogger\t180";
         sample = tsvParser.parse(str);
         System.out.println(str);
         f = new ArrayList<String>();
@@ -75,7 +75,21 @@ public class TSVParserTest {
         System.out.println();
         Assert.assertTrue(sample.getLabel() == -1.0);
         Assert.assertTrue(sample.getVector().containsValue(80.0));
-        Assert.assertTrue(f.contains("feature height_2"));
+        Assert.assertTrue(f.contains("feature height_1"));
+
+        str = "janes\t-1\t80.0\tfalse\ttrue\tavid jogger\t181";
+        sample = tsvParser.parse(str);
+        System.out.println(str);
+        f = new ArrayList<String>();
+        for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
+            System.out.println(entry.getIntKey() + "=" + tsvParser.getInvertHashMap().get(entry.getIntKey()) + ","
+                    + entry.getDoubleValue());
+            f.add(tsvParser.getInvertHashMap().get(entry.getIntKey()));
+        }
+        System.out.println();
+        Assert.assertTrue(sample.getLabel() == -1.0);
+        Assert.assertTrue(sample.getVector().containsValue(80.0));
+        Assert.assertTrue(f.contains("feature height_1"));
 
         str = "janes\t-1\t\t\t\t\t190";
         sample = tsvParser.parse(str);
@@ -88,6 +102,7 @@ public class TSVParserTest {
         }
         System.out.println();
         Assert.assertTrue(sample.getVector().size() == 2);
+        Assert.assertTrue(f.contains("feature height_1"));
 
         spec = "name,0,ignore\nmale,1,label\nweight_pounds,1,a\nstrong,0,b\nnum,3,c,177,180\npersonality,1,d";
         tsvParser = new TSVParser(18, "abc", true, spec);
