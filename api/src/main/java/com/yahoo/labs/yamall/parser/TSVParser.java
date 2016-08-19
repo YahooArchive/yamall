@@ -167,10 +167,7 @@ public class TSVParser implements InstanceParser {
                                 DoubleArrayList bin_borders = bins.get(pos);
                                 DoubleIterator iter = bin_borders.iterator();
                                 int i = -1;
-                                double edge = 0;
-                                while (iter.hasNext() && (edge = iter.nextDouble()) <= val)
-                                    i++;
-                                if (edge <= val)
+                                while (iter.hasNext() && iter.nextDouble() <= val)
                                     i++;
                                 String s = namespace.get(pos) + " " + feature.get(pos) + "_" + Integer.toString(i);
                                 int hashed = MurmurHash3.maskedHash(s, mask_hash);
