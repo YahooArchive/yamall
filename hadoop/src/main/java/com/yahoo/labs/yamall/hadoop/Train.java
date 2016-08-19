@@ -47,7 +47,7 @@ import com.yahoo.labs.yamall.parser.VWParser;
  * 
  * Train a yamall model.
  * 
- * @author ghalawi, francesco
+ * @author Guy Halawi, Francesco Orabona
  * @version 1.0
  */
 public class Train extends Configured implements Tool {

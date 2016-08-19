@@ -6,7 +6,7 @@ package com.yahoo.labs.yamall.ml;
 /**
  * Logistic link function.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 @SuppressWarnings("serial")

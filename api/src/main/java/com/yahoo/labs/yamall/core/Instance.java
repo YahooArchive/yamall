@@ -10,7 +10,7 @@ import java.io.Serializable;
  * <p>
  * An instance is defined by a label, a weight, a tag, and a vector.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 @SuppressWarnings("serial")

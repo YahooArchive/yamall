@@ -19,7 +19,7 @@ import com.yahoo.labs.yamall.parser.VWParser;
 /**
  * I/O functions for the Learner class
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 public class IOLearner {

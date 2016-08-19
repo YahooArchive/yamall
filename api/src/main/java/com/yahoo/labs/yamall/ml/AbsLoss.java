@@ -6,7 +6,7 @@ package com.yahoo.labs.yamall.ml;
 /**
  * Absolute loss.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 @SuppressWarnings("serial")

@@ -6,7 +6,7 @@ package com.yahoo.labs.yamall.parser;
 /**
  * Fast tokenizer for parsing.
  * 
- * @author Francesco Orabona <francesco@yahoo-inc.com>
+ * @author Francesco Orabona
  * @version 1.0
  */
 public class FastStringTokenizer {

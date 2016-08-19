@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
  * <p>
  * The memory required is 2^bits*3*8 bytes.
  * 
- * @author Francesco Orabona <francesco@yahoo-inc.com>
+ * @author Francesco Orabona
  * @version 1.1
  */
 @SuppressWarnings("serial")

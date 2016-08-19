@@ -15,7 +15,7 @@ import com.yahoo.labs.yamall.core.SparseVector;
  * <p>
  * The details of the algorithm are from F. Orabona, D. Pal, "Scale-Free Algorithms for Online Linear Optimization", ALT 2015
  * 
- * @author Francesco Orabona <francesco@yahoo-inc.com>
+ * @author Francesco Orabona
  * @version 1.0
  */
 @SuppressWarnings("serial")
