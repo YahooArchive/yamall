@@ -33,7 +33,7 @@ import it.unimi.dsi.fastutil.chars.Char2BooleanOpenHashMap;
  * Value is a floating point number. If Value is omitted, it is treated as 1.0.
  * </p>
  *
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 public class VWParser implements InstanceParser {

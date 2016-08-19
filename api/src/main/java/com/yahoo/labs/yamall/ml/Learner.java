@@ -11,7 +11,7 @@ import com.yahoo.labs.yamall.core.SparseVector;
 /**
  * Learner interface.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 public interface Learner extends Serializable {

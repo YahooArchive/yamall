@@ -23,7 +23,7 @@ package com.yahoo.labs.yamall.util;
  */
 public final class MurmurHash3 {
 
-    /** 128 bits of state */
+    /* 128 bits of state */
     public static final class LongPair {
         public long val1;
         public long val2;
@@ -47,7 +47,7 @@ public final class MurmurHash3 {
         return k;
     }
 
-    /** Gets a long from a byte buffer in little endian byte order. */
+    /* Gets a long from a byte buffer in little endian byte order. */
     public static final long getLongLittleEndian(byte[] buf, int offset) {
         return ((long) buf[offset + 7] << 56) // no mask needed
                 | ((buf[offset + 6] & 0xffL) << 48) | ((buf[offset + 5] & 0xffL) << 40)
@@ -55,7 +55,7 @@ public final class MurmurHash3 {
                 | ((buf[offset + 2] & 0xffL) << 16) | ((buf[offset + 1] & 0xffL) << 8) | ((buf[offset] & 0xffL)); // no shift needed
     }
 
-    /** Returns the MurmurHash3_x86_32 hash. */
+    /* Returns the MurmurHash3_x86_32 hash. */
     public static int murmurhash3_x86_32(byte[] data, int offset, int len, int seed) {
 
         final int c1 = 0xcc9e2d51;
@@ -108,7 +108,7 @@ public final class MurmurHash3 {
         return h1;
     }
 
-    /**
+    /*
      * Returns the MurmurHash3_x86_32 hash of the UTF-8 bytes of the String without actually encoding the string to a temporary buffer. This is more than 2x
      * faster than hashing the result of String.getBytes().
      */
@@ -133,11 +133,11 @@ public final class MurmurHash3 {
                 k2 = code;
                 bits = 8;
 
-                /***
+                /*
                  * // optimized ascii implementation (currently slower!!! code size?) if (shift == 24) { k1 = k1 | (code << 24); k1 *= c1; k1 = (k1 << 15) | (k1
                  * >>> 17); // ROTL32(k1,15); k1 *= c2; h1 ^= k1; h1 = (h1 << 13) | (h1 >>> 19); // ROTL32(h1,13); h1 = h1*5+0xe6546b64; shift = 0; nBytes += 4;
                  * k1 = 0; } else { k1 |= code << shift; shift += 8; } continue;
-                 ***/
+                 */
 
             }
             else if (code < 0x800) {
@@ -211,7 +211,7 @@ public final class MurmurHash3 {
         return h1;
     }
 
-    /** Returns the MurmurHash3_x64_128 hash, placing the result in "out". */
+    /* Returns the MurmurHash3_x64_128 hash, placing the result in "out". */
     public static void murmurhash3_x64_128(byte[] key, int offset, int len, int seed, LongPair out) {
         // The original algorithm does have a 32 bit unsigned seed.
         // We have to mask to match the behavior of the unsigned types and prevent sign extension.

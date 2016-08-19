@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * Link function interface.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 public interface LinkFunction extends Serializable {

@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
  * <p>
  * Two consecutive tabs are interpreted as a missing value.
  *
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.1
  */
 public class TSVParser implements InstanceParser {

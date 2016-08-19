@@ -44,7 +44,7 @@ import com.yahoo.labs.yamall.parser.VWParser;
  * 
  * Test a yamall model.
  * 
- * @author Francesco Orabona, (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  * @version 1.0
  */
 public class Test extends Configured implements Tool {

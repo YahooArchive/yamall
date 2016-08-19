@@ -14,7 +14,7 @@ import com.yahoo.labs.yamall.parser.VWParser;
 /**
  * Example file on how to use the VW parser from yamall
  * 
- * @author Francesco Orabona (francesco@yahoo-inc.com)
+ * @author Francesco Orabona
  *
  */
 public class StatisticsVWFile {
