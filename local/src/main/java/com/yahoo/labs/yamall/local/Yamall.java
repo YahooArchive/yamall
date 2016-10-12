@@ -27,6 +27,7 @@ import org.apache.commons.cli.ParseException;
 import com.yahoo.labs.yamall.core.Instance;
 import com.yahoo.labs.yamall.ml.AbsLoss;
 import com.yahoo.labs.yamall.ml.COCOB;
+import com.yahoo.labs.yamall.ml.FM_squareLoss;
 import com.yahoo.labs.yamall.ml.HingeLoss;
 import com.yahoo.labs.yamall.ml.IOLearner;
 import com.yahoo.labs.yamall.ml.IdentityLinkFunction;
@@ -40,6 +41,7 @@ import com.yahoo.labs.yamall.ml.PerCoordinateCOCOB;
 import com.yahoo.labs.yamall.ml.PerCoordinateKT;
 import com.yahoo.labs.yamall.ml.PerCoordinatePiSTOL;
 import com.yahoo.labs.yamall.ml.PerCoordinateSOLO;
+import com.yahoo.labs.yamall.ml.SGD_FM;
 import com.yahoo.labs.yamall.ml.SGD_VW;
 import com.yahoo.labs.yamall.ml.SOLO;
 import com.yahoo.labs.yamall.ml.SquareLoss;
@@ -131,6 +133,9 @@ public class Yamall {
         options.addOption(
                 Option.builder().hasArg(true).required(false).desc("holdout period for test only, default = 10")
                         .longOpt("holdout_period").type(String.class).build());
+        
+        //TODO : Take input from user
+        int fmNumberFactors = 8; 
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -170,7 +175,8 @@ public class Yamall {
         remainingArgs = cmd.getArgs();
         if (remainingArgs.length == 1)
             inputFile = remainingArgs[0];
-
+        //inputFile = "/home/chaitu/yamall/resources/example_data/rcv1.train.100.vw";
+        inputFile = "/home/chaitu/yamall/resources/example_data/cpusmall.vw";
         VWParser vwparser = new VWParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null));
         System.out.println("Num weight bits = " + bitsHash);
 
@@ -215,7 +221,8 @@ public class Yamall {
                 learner = new PerCoordinatePiSTOL(bitsHash);
             }
             else
-                learner = new SGD_VW(bitsHash);
+                //learner = new SGD_VW(bitsHash);
+            	learner = new SGD_FM(bitsHash, fmNumberFactors);
         }
         else {
             learner = IOLearner.loadLearner(initialModelFile);
@@ -235,7 +242,8 @@ public class Yamall {
 
         // setup loss function
         if (lossName.equals("squared")) {
-            lossFnc = new SquareLoss();
+            //lossFnc = new SquareLoss();
+        	lossFnc = new FM_squareLoss();
         }
         else if (lossName.equals("hinge")) {
             lossFnc = new HingeLoss();
@@ -252,6 +260,8 @@ public class Yamall {
         }
 
         learner.setLoss(lossFnc);
+        
+        
         learner.setLearningRate(learningRate);
 
         // maximum range predictions
