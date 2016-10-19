@@ -1,5 +1,7 @@
 package com.yahoo.labs.yamall.ml;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Random;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
@@ -10,6 +12,7 @@ import com.yahoo.labs.yamall.core.SparseVector;
 public class SGD_FM implements Learner {
 	
 	private double eta = .5;
+	private double epsilon = Math.exp(-6);
 	private Loss lossFnc;
     private double iter = 0;
     private int size_hash = 0;
@@ -20,40 +23,42 @@ public class SGD_FM implements Learner {
     private transient double[][] v;
     private transient double[] sumProd_v;
     private boolean isInitialized = false;
+    
+    private transient double[] gradientSquare_w;  // Use to store past gradient info for adagrad 
+    private transient double[][] gradientSquare_v;
+    
 	
 	public SGD_FM(int bits, int fmNumberFactors) {
 		size_hash = 1 << bits;
 		this.fmNumberFactors = fmNumberFactors;
 		w = new double[size_hash];
 		s = new double[size_hash];
-		
 		v = new double[size_hash][fmNumberFactors]; //Too much space wastage. TODO: optimize space
+		
+		init(size_hash, fmNumberFactors);  // initialize all v's with gaussian distribution
 		sumProd_v = new double[fmNumberFactors];
+		gradientSquare_w = new double[size_hash];
+		gradientSquare_v = new double[size_hash][fmNumberFactors];
+		
 	}
 	
-	public void init(Instance sample) {
+	public void init(int hash_size, int numFactors) {
 		Random r = new Random();
-		for (int i = 0 ; i < fmNumberFactors; i++) {
-			for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
-				int key = entry.getIntKey();
-				double temp = r.nextGaussian()*0.01;
-				v[key][i] = temp;
+		for (int i = 0 ; i < hash_size; i++) {
+			for (int j = 0; j < numFactors; j++) {
+				double temp = r.nextGaussian()*0.01;  //Mean = 0, variance = 0.01
+				v[i][j] = temp;
 			}
 		}
 		
 	}
 	
 	public double update(Instance sample) {
-		
-		
-		if (!isInitialized) {
-			init(sample);
-			isInitialized = true;
-		}
 		/*
 		 *  calculate pred => sum(w_i*x_i)
 		 */
-		double pred = predict(sample);
+		double pred = predict_normalized_features(sample);
+		
 		
 		final double negativeGrad = lossFnc.negativeGradient(pred, sample.getLabel(), sample.getWeight());
 		
@@ -63,19 +68,32 @@ public class SGD_FM implements Learner {
 		 */
 		for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
 			int key = entry.getIntKey();
+			
 			double x_i = entry.getDoubleValue();
 			double w_i = w[key];
-			w_i += (eta*negativeGrad*x_i);
+			/*
+			 * Adaptive learning rate : eta_grad
+			 */
+			gradientSquare_w[key] += Math.pow(negativeGrad*x_i, 2);
+			double eta_grad = eta/(Math.sqrt(gradientSquare_w[key] ) + epsilon);
+			
+			w_i += (eta_grad*negativeGrad*x_i);
+			
 			w[key] = w_i;
 		}
-		
 		for (int i = 0; i < fmNumberFactors; i++) {
 				for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
 					int key = entry.getIntKey();
 					double x_i = entry.getDoubleValue();
 					double v_ij = v[key][i];
 					double v_grad = (x_i*sumProd_v[i]) - (v_ij * x_i*x_i);
-					v_ij += eta* negativeGrad*v_grad;
+					
+					/*
+					 * Adaptive learning rate : eta_grad
+					 */
+					gradientSquare_v[key][i] += Math.pow(negativeGrad*v_grad, 2);
+					double eta_grad = eta/(Math.sqrt(gradientSquare_v[key][i]) + epsilon);
+					v_ij += eta_grad* negativeGrad*v_grad;
 					v[key][i] = v_ij;
 				}
 		}
@@ -83,6 +101,57 @@ public class SGD_FM implements Learner {
 		return pred;
 	}
 
+	public double predict_normalized_features(Instance sample) {
+		double pred = 0;
+		
+		//one-way interaction
+		for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
+			int key = entry.getIntKey();
+			double s_i = s[key];
+			double x_i = entry.getDoubleValue();
+			double w_i = w[key];
+			if (Math.abs(x_i) > s_i) {
+                w_i = w_i * s_i / Math.abs(x_i);
+                w[key] = w_i;
+                //s_i = Math.abs(x_i);    //I am not changing the max feature value here as it is used in two way 
+                						  //     interactions also
+                //s[key] = s_i;
+            }
+			pred += (x_i * w_i);
+		}
+		
+		
+		/*
+		 * Calculating two way interaction: O(nk)
+		 *  
+		 */
+		for (int i = 0; i < fmNumberFactors; i++) {
+			double linearSum = 0;
+			double squareSum = 0;
+			for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
+				int key = entry.getIntKey();
+				double s_i = s[key];
+				double x_i = entry.getDoubleValue();
+				if (Math.abs(x_i) > s_i) {
+					for (int k = 0 ; k < fmNumberFactors; k++) {
+						double v_ij = v[key][k];
+						v_ij = v_ij * s_i / Math.abs(x_i);
+						v[key][k] = v_ij;
+					}
+					s_i = Math.abs(x_i);
+					s[key] = s_i;
+	            }
+				double v_ij = v[key][i];
+				double prod = v_ij*x_i;
+				linearSum += prod;
+				squareSum += prod*prod;
+			}
+			sumProd_v[i] = linearSum;
+			pred += 0.5*(linearSum*linearSum - squareSum);
+		}
+		
+		return pred;
+	}
 	public double predict(Instance sample) {
 		double pred = 0;
 		
@@ -105,6 +174,8 @@ public class SGD_FM implements Learner {
 			for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
 				int key = entry.getIntKey();
 				double x_i = entry.getDoubleValue();
+				//double v_ij = v[key][i];
+				
 				double v_ij = v[key][i];
 				double prod = v_ij*x_i;
 				linearSum += prod;
@@ -127,7 +198,7 @@ public class SGD_FM implements Learner {
 	}
 
 	public void setLearningRate(double eta) {
-		eta = 0.01;
+		//eta = 0.01;
 		this.eta = eta;
 	}
 
@@ -135,5 +206,13 @@ public class SGD_FM implements Learner {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	/*
+	private void writeObject(ObjectOutputStream o) throws IOException {
+        o.defaultWriteObject();
+        o.writeObject(SparseVector.dense2Sparse(w));
+        o.writeObject(SparseVector.dense2Sparse(s));
+        o.writeObject(SparseVector.dense2Sparse(v));
+    }
+    */
 
 }
