@@ -9,6 +9,13 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import com.yahoo.labs.yamall.core.Instance;
 import com.yahoo.labs.yamall.core.SparseVector;
 
+
+/*
+ * This class is an implementation of Factorization Machines.
+ *  w - parameters of linear model
+ *  v - parameters of interaction parameters(two way interaction) 
+ * 
+ */
 public class SGD_FM implements Learner {
 	
 	private double eta = .5;
@@ -17,15 +24,16 @@ public class SGD_FM implements Learner {
     private double iter = 0;
     private int size_hash = 0;
     private int fmNumberFactors = 0;
-    private transient double[] w;
-    private transient double[] s;
+    private double[] w;             //linear model parameters
+    private double[] s;
     
-    private transient double[][] v;
-    private transient double[] sumProd_v;
+    private double[][] v;           //interaction parameters
+    private double[] sumProd_v;     
     private boolean isInitialized = false;
     
-    private transient double[] gradientSquare_w;  // Use to store past gradient info for adagrad 
-    private transient double[][] gradientSquare_v;
+    // Use to store past gradient info for adagrad 
+    private double[] gradientSquare_w;  
+    private double[][] gradientSquare_v;
     
 	
 	public SGD_FM(int bits, int fmNumberFactors) {
@@ -33,15 +41,22 @@ public class SGD_FM implements Learner {
 		this.fmNumberFactors = fmNumberFactors;
 		w = new double[size_hash];
 		s = new double[size_hash];
-		v = new double[size_hash][fmNumberFactors]; //Too much space wastage. TODO: optimize space
 		
-		init(size_hash, fmNumberFactors);  // initialize all v's with gaussian distribution
+		//TODO: optimize space
+		v = new double[size_hash][fmNumberFactors];  
+		
+		// initialize all v's with gaussian distribution
+		init(size_hash, fmNumberFactors);  
 		sumProd_v = new double[fmNumberFactors];
 		gradientSquare_w = new double[size_hash];
-		gradientSquare_v = new double[size_hash][fmNumberFactors];
-		
+		gradientSquare_v = new double[size_hash][fmNumberFactors];	
 	}
 	
+	/*
+	 * Initialize the interaction parameters 
+	 *        to avoid gradient to be 0
+	 * 
+	 */
 	public void init(int hash_size, int numFactors) {
 		Random r = new Random();
 		for (int i = 0 ; i < hash_size; i++) {
@@ -64,7 +79,7 @@ public class SGD_FM implements Learner {
 		
 		/*
 		 * update weights.
-		 * w_i = w_i - eta*gradient(loss)
+		 * w_i = w_i - eta(t)*gradient(loss)
 		 */
 		for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
 			int key = entry.getIntKey();
@@ -74,7 +89,8 @@ public class SGD_FM implements Learner {
 			/*
 			 * Adaptive learning rate : eta_grad
 			 */
-			gradientSquare_w[key] += Math.pow(negativeGrad*x_i, 2);
+			//gradientSquare_w[key] += Math.pow(negativeGrad*x_i, 2);
+			gradientSquare_w[key] += ((negativeGrad*x_i) * (negativeGrad*x_i));
 			double eta_grad = eta/(Math.sqrt(gradientSquare_w[key] ) + epsilon);
 			
 			w_i += (eta_grad*negativeGrad*x_i);
@@ -91,7 +107,8 @@ public class SGD_FM implements Learner {
 					/*
 					 * Adaptive learning rate : eta_grad
 					 */
-					gradientSquare_v[key][i] += Math.pow(negativeGrad*v_grad, 2);
+					//gradientSquare_v[key][i] += Math.pow(negativeGrad*v_grad, 2);
+					gradientSquare_v[key][i] += ((negativeGrad*v_grad) * (negativeGrad*v_grad));
 					double eta_grad = eta/(Math.sqrt(gradientSquare_v[key][i]) + epsilon);
 					v_ij += eta_grad* negativeGrad*v_grad;
 					v[key][i] = v_ij;
@@ -132,6 +149,11 @@ public class SGD_FM implements Learner {
 				int key = entry.getIntKey();
 				double s_i = s[key];
 				double x_i = entry.getDoubleValue();
+				
+				/*
+				 * This condition is satisfied only once per feature.
+				 * The running time is O(#factors * #features) 
+				 */
 				if (Math.abs(x_i) > s_i) {
 					for (int k = 0 ; k < fmNumberFactors; k++) {
 						double v_ij = v[key][k];
@@ -152,6 +174,8 @@ public class SGD_FM implements Learner {
 		
 		return pred;
 	}
+	
+	
 	public double predict(Instance sample) {
 		double pred = 0;
 		
@@ -174,8 +198,6 @@ public class SGD_FM implements Learner {
 			for (Int2DoubleMap.Entry entry : sample.getVector().int2DoubleEntrySet()) {
 				int key = entry.getIntKey();
 				double x_i = entry.getDoubleValue();
-				//double v_ij = v[key][i];
-				
 				double v_ij = v[key][i];
 				double prod = v_ij*x_i;
 				linearSum += prod;
@@ -206,13 +228,10 @@ public class SGD_FM implements Learner {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	/*
+	
 	private void writeObject(ObjectOutputStream o) throws IOException {
         o.defaultWriteObject();
-        o.writeObject(SparseVector.dense2Sparse(w));
-        o.writeObject(SparseVector.dense2Sparse(s));
-        o.writeObject(SparseVector.dense2Sparse(v));
     }
-    */
+    
 
 }
