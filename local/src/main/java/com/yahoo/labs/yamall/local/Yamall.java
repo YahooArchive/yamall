@@ -53,6 +53,7 @@ public class Yamall {
     private static Learner learner = null;
     private static double minPrediction = 0;
     private static double maxPrediction = 0;
+    private static int fmNumberFactors = 0;
     private static boolean binary = false;
 
     public static void main(String[] args) {
@@ -67,6 +68,7 @@ public class Yamall {
         double learningRate = 1;
         String minPredictionString = null;
         String maxPredictionString = null;
+        String fmNumberFactorsString = null;
         int bitsHash;
         int numberPasses;
         int holdoutPeriod = 10;
@@ -134,9 +136,9 @@ public class Yamall {
         options.addOption(
                 Option.builder().hasArg(true).required(false).desc("holdout period for test only, default = 10")
                         .longOpt("holdout_period").type(String.class).build());
-        
-        //TODO : Take input from user
-        int fmNumberFactors = 8; 
+        options.addOption(Option.builder().hasArg(true).required(false)
+                .desc("number of factors for Factorization Machines default = 8")
+                .longOpt("fmNumberFactors").type(String.class).build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -165,6 +167,7 @@ public class Yamall {
         invertHashName = cmd.getOptionValue("invert_hash");
         minPredictionString = cmd.getOptionValue("min_prediction", "-50");
         maxPredictionString = cmd.getOptionValue("max_prediction", "50");
+        fmNumberFactorsString = cmd.getOptionValue("fmNumberFactors", "8");
 
         numberPasses = Integer.parseInt(cmd.getOptionValue("passes", "1"));
         System.out.println("Number of passes = " + numberPasses);
@@ -193,6 +196,9 @@ public class Yamall {
         // min and max predictions
         minPrediction = (double) Double.parseDouble(minPredictionString);
         maxPrediction = (double) Double.parseDouble(maxPredictionString);
+        
+        // number of factors for Factorization Machines
+        fmNumberFactors = (int) Integer.parseInt(fmNumberFactorsString);
 
         // configure the learner
         Loss lossFnc = null;
