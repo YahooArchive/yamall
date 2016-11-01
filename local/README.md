@@ -38,7 +38,7 @@ You can also save the actual predications for each example in the input file:
 | --- | --- |
 | `--ignore <arg>` | ignore namespaces beginning with the characters in <arg> |
 | `--passes <arg>` | number of training passes |
-| `--fmNumberFactors <agr>` | number of factors for Factorization Machines learner|
+| `--fmNumberFactors <agr>` | number of factors for Factorization Machines learner (default = 8)|
 
 | Output options  | Description |
 | --- | --- |
