@@ -10,10 +10,26 @@ import com.yahoo.labs.yamall.core.Instance;
 import com.yahoo.labs.yamall.core.SparseVector;
 
 
-/*
- * This class is an implementation of Factorization Machines.
+/**
+ * Stochastic Gradient Descent for Two way Factorization Machines.
+ * 
+ * 
+ * <p>
+ * The details of the algorithm are from 1) Steffen Rendle, "Factorization Machines" ,  
+ * 2) S. Ross, P. Mineiro, J. Langford, "Normalized online learning", UAI 2013.								 
+ * <p>
+ * 
+ * <p>
+ *  https://github.com/srendle/libfm
+ * <p>
+ * 
+ * Memory required - 2^bits * 6 * 8 bytes
+ * 
  *  w - parameters of linear model
- *  v - parameters of interaction parameters(two way interaction) 
+ *  v - parameters of interaction parameters(two way interaction)
+ *  
+ *   @author Krishna Chaitanya Chakka
+ *   @version 1.1
  * 
  */
 public class SGD_FM implements Learner {
@@ -53,7 +69,7 @@ public class SGD_FM implements Learner {
 	}
 	
 	/*
-	 * Initialize the interaction parameters 
+	 * Initialize the interaction parameters with gaussian noise
 	 *        to avoid gradient to be 0
 	 * 
 	 */
@@ -89,7 +105,6 @@ public class SGD_FM implements Learner {
 			/*
 			 * Adaptive learning rate : eta_grad
 			 */
-			//gradientSquare_w[key] += Math.pow(negativeGrad*x_i, 2);
 			gradientSquare_w[key] += ((negativeGrad*x_i) * (negativeGrad*x_i));
 			double eta_grad = eta/(Math.sqrt(gradientSquare_w[key] ) + epsilon);
 			
@@ -107,7 +122,7 @@ public class SGD_FM implements Learner {
 					/*
 					 * Adaptive learning rate : eta_grad
 					 */
-					//gradientSquare_v[key][i] += Math.pow(negativeGrad*v_grad, 2);
+					
 					gradientSquare_v[key][i] += ((negativeGrad*v_grad) * (negativeGrad*v_grad));
 					double eta_grad = eta/(Math.sqrt(gradientSquare_v[key][i]) + epsilon);
 					v_ij += eta_grad* negativeGrad*v_grad;
@@ -210,6 +225,13 @@ public class SGD_FM implements Learner {
 		return pred;
 	}
 
+	public String toString() {
+        String tmp = "Using Factorization Machines optimizer (adaptive and normalized)\n";
+        tmp = tmp + "Initial learning rate = " + eta + "\n";
+        tmp = tmp + "Loss function = " + getLoss().toString();
+        return tmp;
+    }
+	
 	public void setLoss(Loss lossFnc) {
 		this.lossFnc = lossFnc;
 		
@@ -220,7 +242,6 @@ public class SGD_FM implements Learner {
 	}
 
 	public void setLearningRate(double eta) {
-		//eta = 0.01;
 		this.eta = eta;
 	}
 

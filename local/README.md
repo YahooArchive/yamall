@@ -38,6 +38,7 @@ You can also save the actual predications for each example in the input file:
 | --- | --- |
 | `--ignore <arg>` | ignore namespaces beginning with the characters in <arg> |
 | `--passes <arg>` | number of training passes |
+| `--fmNumberFactors <agr>` | number of factors for Factorization Machines learner|
 
 | Output options  | Description |
 | --- | --- |
@@ -66,4 +67,5 @@ You can also save the actual predications for each example in the input file:
 | `--pcsolo` | uses Per Coordinate SOLO optimizer |
 | `--pistol` | uses PiSTOL optimizer |
 | `--solo` | uses SOLO optimizer | 
+| `--fm` | uses Two-way Factorization Machines |    
 | `-t` | ignore label information and just test | 
