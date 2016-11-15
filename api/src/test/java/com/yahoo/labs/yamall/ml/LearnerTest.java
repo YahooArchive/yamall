@@ -86,6 +86,7 @@ public class LearnerTest {
         Assert.assertTrue(learnerLogisticLossTest(new COCOB(1), iter) < 0);
         Assert.assertTrue(learnerLogisticLossTest(new PerCoordinateCOCOB(1), iter) < 0);
         Assert.assertTrue(learnerLogisticLossTest(new PerCoordinateKT(1), iter) < 0);
+        Assert.assertTrue(learnerLogisticLossTest(new SGD_FM(1, 8), iter) < 0);
     }
 
 }

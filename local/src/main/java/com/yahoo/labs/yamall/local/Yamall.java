@@ -40,6 +40,7 @@ import com.yahoo.labs.yamall.ml.PerCoordinateCOCOB;
 import com.yahoo.labs.yamall.ml.PerCoordinateKT;
 import com.yahoo.labs.yamall.ml.PerCoordinatePiSTOL;
 import com.yahoo.labs.yamall.ml.PerCoordinateSOLO;
+import com.yahoo.labs.yamall.ml.SGD_FM;
 import com.yahoo.labs.yamall.ml.SGD_VW;
 import com.yahoo.labs.yamall.ml.SOLO;
 import com.yahoo.labs.yamall.ml.SquareLoss;
@@ -52,6 +53,7 @@ public class Yamall {
     private static Learner learner = null;
     private static double minPrediction = 0;
     private static double maxPrediction = 0;
+    private static int fmNumberFactors = 0;
     private static boolean binary = false;
 
     public static void main(String[] args) {
@@ -66,6 +68,7 @@ public class Yamall {
         double learningRate = 1;
         String minPredictionString = null;
         String maxPredictionString = null;
+        String fmNumberFactorsString = null;
         int bitsHash;
         int numberPasses;
         int holdoutPeriod = 10;
@@ -92,6 +95,8 @@ public class Yamall {
                 .desc("(EXPERIMENTAL) uses Per Coordinate COCOB optimizer").build());
         options.addOption(Option.builder().hasArg(false).required(false).longOpt("cocob")
                 .desc("(EXPERIMENTAL) uses COCOB optimizer").build());
+        options.addOption(Option.builder().hasArg(false).required(false).longOpt("fm")
+                .desc("Factorization Machine").build());
         options.addOption(Option.builder("f").hasArg(true).required(false).desc("final regressor to save")
                 .type(String.class).longOpt("final_regressor").build());
         options.addOption(Option.builder("p").hasArg(true).required(false).desc("file to output predictions to")
@@ -131,6 +136,9 @@ public class Yamall {
         options.addOption(
                 Option.builder().hasArg(true).required(false).desc("holdout period for test only, default = 10")
                         .longOpt("holdout_period").type(String.class).build());
+        options.addOption(Option.builder().hasArg(true).required(false)
+                .desc("number of factors for Factorization Machines default = 8")
+                .longOpt("fmNumberFactors").type(String.class).build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -159,6 +167,7 @@ public class Yamall {
         invertHashName = cmd.getOptionValue("invert_hash");
         minPredictionString = cmd.getOptionValue("min_prediction", "-50");
         maxPredictionString = cmd.getOptionValue("max_prediction", "50");
+        fmNumberFactorsString = cmd.getOptionValue("fmNumberFactors", "8");
 
         numberPasses = Integer.parseInt(cmd.getOptionValue("passes", "1"));
         System.out.println("Number of passes = " + numberPasses);
@@ -170,7 +179,6 @@ public class Yamall {
         remainingArgs = cmd.getArgs();
         if (remainingArgs.length == 1)
             inputFile = remainingArgs[0];
-
         VWParser vwparser = new VWParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null));
         System.out.println("Num weight bits = " + bitsHash);
 
@@ -188,6 +196,9 @@ public class Yamall {
         // min and max predictions
         minPrediction = (double) Double.parseDouble(minPredictionString);
         maxPrediction = (double) Double.parseDouble(maxPredictionString);
+        
+        // number of factors for Factorization Machines
+        fmNumberFactors = (int) Integer.parseInt(fmNumberFactorsString);
 
         // configure the learner
         Loss lossFnc = null;
@@ -213,6 +224,9 @@ public class Yamall {
             }
             else if (cmd.hasOption("pistol")) {
                 learner = new PerCoordinatePiSTOL(bitsHash);
+            }
+            else if (cmd.hasOption("fm")) {
+            	learner = new SGD_FM(bitsHash, fmNumberFactors);
             }
             else
                 learner = new SGD_VW(bitsHash);
@@ -252,6 +266,8 @@ public class Yamall {
         }
 
         learner.setLoss(lossFnc);
+        
+        
         learner.setLearningRate(learningRate);
 
         // maximum range predictions
