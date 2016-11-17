@@ -220,4 +220,7 @@ public class TSVParser implements InstanceParser {
         return invertHashMap;
     }
 
+    public String toString() {
+        return "TSV parser";
+    }
 }

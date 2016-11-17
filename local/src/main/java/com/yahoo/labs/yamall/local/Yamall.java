@@ -44,6 +44,8 @@ import com.yahoo.labs.yamall.ml.SGD_FM;
 import com.yahoo.labs.yamall.ml.SGD_VW;
 import com.yahoo.labs.yamall.ml.SOLO;
 import com.yahoo.labs.yamall.ml.SquareLoss;
+import com.yahoo.labs.yamall.parser.InstanceParser;
+import com.yahoo.labs.yamall.parser.LIBSVMParser;
 import com.yahoo.labs.yamall.parser.VWParser;
 
 public class Yamall {
@@ -63,6 +65,7 @@ public class Yamall {
         String saveModelFile = null;
         String initialModelFile = null;
         String lossName = null;
+        String parserName = null;
         String linkName = null;
         String invertHashName = null;
         double learningRate = 1;
@@ -139,6 +142,10 @@ public class Yamall {
         options.addOption(Option.builder().hasArg(true).required(false)
                 .desc("number of factors for Factorization Machines default = 8")
                 .longOpt("fmNumberFactors").type(String.class).build());
+        options.addOption(Option.builder().hasArg(true).required(false)
+                .desc("specify the parser to use. Currently available ones are: vw (default), libsvm")
+                .longOpt("parser").type(String.class).build());
+        
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -168,6 +175,7 @@ public class Yamall {
         minPredictionString = cmd.getOptionValue("min_prediction", "-50");
         maxPredictionString = cmd.getOptionValue("max_prediction", "50");
         fmNumberFactorsString = cmd.getOptionValue("fmNumberFactors", "8");
+        parserName = cmd.getOptionValue("parser", "vw");
 
         numberPasses = Integer.parseInt(cmd.getOptionValue("passes", "1"));
         System.out.println("Number of passes = " + numberPasses);
@@ -179,7 +187,16 @@ public class Yamall {
         remainingArgs = cmd.getArgs();
         if (remainingArgs.length == 1)
             inputFile = remainingArgs[0];
-        VWParser vwparser = new VWParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null));
+        
+        InstanceParser instanceParser = null;
+        if (parserName.equals("vw"))
+        	instanceParser = new VWParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null));
+        else if (parserName.equals("libsvm"))
+        	instanceParser = new LIBSVMParser(bitsHash, (invertHashName != null));
+        else {
+            System.out.println("Unknown parser.");
+            System.exit(0);
+        }
         System.out.println("Num weight bits = " + bitsHash);
 
         // setup progress
@@ -344,7 +361,7 @@ public class Yamall {
                         else {
                             String strLine = br.readLine();
                             if (strLine != null)
-                                sample = vwparser.parse(strLine);
+                                sample = instanceParser.parse(strLine);
                             else
                                 break;
                         }
@@ -449,7 +466,7 @@ public class Yamall {
                 if (saveModelFile != null)
                     IOLearner.saveLearner(learner, saveModelFile);
                 if (invertHashName != null)
-                    IOLearner.saveInvertHash(learner.getWeights(), vwparser.getInvertHashMap(), invertHashName);
+                    IOLearner.saveInvertHash(learner.getWeights(), instanceParser.getInvertHashMap(), invertHashName);
             }
             catch (IOException e) {
                 // TODO Auto-generated catch block
