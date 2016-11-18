@@ -184,4 +184,8 @@ public class VWParser implements InstanceParser {
             }
         }
     }
+    
+    public String toString() {
+        return "VW parser";
+    }
 }

@@ -29,4 +29,12 @@ public interface InstanceParser {
      * @return hash map from hashed keys to strings composed by namespaces and feature names.
      */
     public HashMap<Integer, String> getInvertHashMap();
+    
+    /**
+     * Returns the textual description of the instance parser.
+     * 
+     * @return a string describing the instance parser.
+     */
+    public String toString();
+
 }
