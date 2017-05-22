@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
@@ -46,6 +48,7 @@ import com.yahoo.labs.yamall.ml.SOLO;
 import com.yahoo.labs.yamall.ml.SquareLoss;
 import com.yahoo.labs.yamall.parser.InstanceParser;
 import com.yahoo.labs.yamall.parser.LIBSVMParser;
+import com.yahoo.labs.yamall.parser.TSVParser;
 import com.yahoo.labs.yamall.parser.VWParser;
 
 public class Yamall {
@@ -143,8 +146,11 @@ public class Yamall {
                 .desc("number of factors for Factorization Machines default = 8")
                 .longOpt("fmNumberFactors").type(String.class).build());
         options.addOption(Option.builder().hasArg(true).required(false)
-                .desc("specify the parser to use. Currently available ones are: vw (default), libsvm")
+                .desc("specify the parser to use. Currently available ones are: vw (default), libsvm, tsv")
                 .longOpt("parser").type(String.class).build());
+        options.addOption(Option.builder().hasArg(true).required(false)
+                .desc("schema file for the TSV input")
+                .longOpt("schema").type(String.class).build());
         
 
         CommandLineParser parser = new DefaultParser();
@@ -189,11 +195,27 @@ public class Yamall {
             inputFile = remainingArgs[0];
         
         InstanceParser instanceParser = null;
-        if (parserName.equals("vw"))
+		if (parserName.equals("vw"))
         	instanceParser = new VWParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null));
         else if (parserName.equals("libsvm"))
         	instanceParser = new LIBSVMParser(bitsHash, (invertHashName != null));
-        else {
+        else if (parserName.equals("tsv")) {
+        	String schema = cmd.getOptionValue("schema");
+        	if (schema == null) {
+        		System.out.println("TSV parser requires a schema file.");
+        		System.exit(0);
+        	} else {
+        		String spec = null;
+				try {
+					spec = new String(Files.readAllBytes(Paths.get(schema)));
+				} catch (IOException e) {
+	        		System.out.println("Error reading the TSV schema file.");
+					e.printStackTrace();
+	        		System.exit(0);
+				}
+        		instanceParser = new TSVParser(bitsHash, cmd.getOptionValue("ignore"), (invertHashName != null), spec);
+        	}
+        } else {
             System.out.println("Unknown parser.");
             System.exit(0);
         }
@@ -283,8 +305,6 @@ public class Yamall {
         }
 
         learner.setLoss(lossFnc);
-        
-        
         learner.setLearningRate(learningRate);
 
         // maximum range predictions
@@ -293,6 +313,8 @@ public class Yamall {
         System.out.println(learner.toString());
         // print information about the link function
         System.out.println(link.toString());
+        // print information about the parser
+        System.out.println(instanceParser.toString());
         // print information about ignored namespaces
         System.out.println("Ignored namespaces = " + cmd.getOptionValue("ignore", ""));
 
